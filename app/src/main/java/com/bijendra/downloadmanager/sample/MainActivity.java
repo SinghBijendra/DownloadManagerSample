@@ -22,6 +22,7 @@ public class MainActivity extends BaseActivity {
     private Button download;
     private long enqueue=-1;
     private DownloadManager downloadManager;
+    boolean openInGallery=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,16 +30,19 @@ public class MainActivity extends BaseActivity {
         checkPermissions();
         setContentView(R.layout.activity_main);
 
-        download = (Button) findViewById(R.id.download);
-        download.setOnClickListener(new View.OnClickListener() {
+
+        ((Button) findViewById(R.id.butDowload)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                Uri uri = Uri.parse(URI_STRING);
-                DownloadManager.Request request = new DownloadManager.Request(uri);
-                request.setDestinationInExternalPublicDir(DIRECTORY, uri.getLastPathSegment());
-                enqueue = downloadManager.enqueue(request);
-
+                openInGallery=false;
+                downloadImage();
+            }
+        });
+        ((Button) findViewById(R.id.butDownload_imageview)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openInGallery=true;
+                downloadImage();
             }
         });
         registerReceiver(receiver, new IntentFilter(
@@ -46,7 +50,14 @@ public class MainActivity extends BaseActivity {
 
     }
 
-
+private void downloadImage()
+{
+    downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+    Uri uri = Uri.parse(URI_STRING);
+    DownloadManager.Request request = new DownloadManager.Request(uri);
+    request.setDestinationInExternalPublicDir(DIRECTORY, uri.getLastPathSegment());
+    enqueue = downloadManager.enqueue(request);
+}
 
     @Override
     protected void onStop() {
@@ -82,7 +93,15 @@ public class MainActivity extends BaseActivity {
                         String uriString = c
                                 .getString(c
                                         .getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
-                        view.setImageURI(Uri.parse(uriString));
+                        Uri uri=Uri.parse(uriString);
+                        view.setImageURI(uri);
+                        if(openInGallery) {
+                            openInGallery=false;
+                            Intent intentImg = new Intent();
+                            intentImg.setAction(Intent.ACTION_VIEW);
+                            intentImg.setDataAndType(uri, "image/*");
+                            startActivity(intentImg);
+                        }
                         break;
                     case DownloadManager.STATUS_FAILED:
                         break;
