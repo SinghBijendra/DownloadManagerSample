@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">DownloadManagerSample</string>
+    <string name="download">Download</string>
+    <string name="cancel">Cancel</string>
+    <string name="notification_title">My hovercraft is full of eels</string>
+    <string name="notification_description">I am no longer infected</string>
+</resources>
